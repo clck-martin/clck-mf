@@ -11,15 +11,39 @@
 // eslint-disable-next-line @typescript-eslint/no-namespace
 declare namespace Cypress {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  interface Chainable<Subject> {
-    login(email: string, password: string): void;
+  interface Chainable<Subject = any> {
+    login(path?: string, options?: Cypress.VisitOptions,): Chainable<AUTWindow>;
   }
 }
 //
 // -- This is a parent command --
-Cypress.Commands.add('login', (email, password) => {
-  console.log('Custom command example: Login', email, password);
-});
+Cypress.Commands.add('login', 
+  (path?: string, visitOptions?: Cypress.VisitOptions) => {
+    
+    const options = {
+      method: "POST",
+      url: "/api/v1/login",
+      body: {
+        username: Cypress.env('USERNAME'),
+        password: Cypress.env('PASSWORD'),
+      },
+      failOnStatusCode: false,
+    };
+
+    return cy.request(options).then((response) => {
+      if (response.status !== 200) {
+        throw new Error(`Request to get auth token failed, response: ${JSON.stringify(response.body)}`);
+      }
+
+      const { id_token: token } = response.body;
+
+      return cy.visit(path || '/', {
+        headers: { Authorization: `Bearer: ${token}` },
+        ...visitOptions,
+      });
+    });
+  });
+  
 //
 // -- This is a child command --
 // Cypress.Commands.add("drag", { prevSubject: 'element'}, (subject, options) => { ... })
