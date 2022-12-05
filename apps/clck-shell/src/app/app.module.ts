@@ -10,4 +10,11 @@ import { NxWelcomeComponent } from './nx-welcome.component';
   providers: [],
   bootstrap: [AppComponent],
 })
-export class AppModule {}
+export class AppModule {
+  /**
+   * Requirement:
+   * req_num: 2
+   * This is the AppModule that handles the ui lifecycle
+   * 
+   */
+}
